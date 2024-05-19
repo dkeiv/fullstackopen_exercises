@@ -1,8 +1,8 @@
 const PersonForm = ({
   nameValue,
-  phoneValue,
+  numberValue,
   onNameChange,
-  onPhoneChange,
+  onNumberChange,
   onClickAdd,
 }) => {
   return (
@@ -11,7 +11,7 @@ const PersonForm = ({
         name: <input value={nameValue} onChange={onNameChange} />
       </div>
       <div>
-        number: <input value={phoneValue} onChange={onPhoneChange} />
+        number: <input value={numberValue} onChange={onNumberChange} />
       </div>
       <div>
         <button type="submit" onClick={onClickAdd}>
