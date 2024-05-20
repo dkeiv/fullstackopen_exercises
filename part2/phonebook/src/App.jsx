@@ -4,12 +4,14 @@ import personService from './services/persons';
 import Persons from './components/Persons';
 import PersonForm from './components/PersonForm';
 import Filter from './components/Filter';
+import Notification from './components/Notification';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [newFilter, setNewFilter] = useState('');
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     personService
@@ -21,6 +23,12 @@ const App = () => {
   const handleOnNameChange = (event) => setNewName(event.target.value);
   const handleOnNumberChange = (event) => setNewNumber(event.target.value);
   const handleOnFilterChange = (event) => setNewFilter(event.target.value);
+  const displayNotification = (message, type) => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
 
   const nameExist = (name) => persons.find((person) => person.name === name);
 
@@ -47,9 +55,12 @@ const App = () => {
     personService
       .create(person)
       .then((addedPerson) => {
+        const msg = `${addedPerson.name} was added!`;
         setNewName('');
         setNewNumber('');
         setPersons(persons.concat(addedPerson)); // trigger re-render
+
+        displayNotification(msg, 'success');
       })
       .catch((err) => console.log(err));
   };
@@ -60,14 +71,18 @@ const App = () => {
     personService
       .updateNumber(changedPerson)
       .then((returnedPerson) => {
+        const msg = `${returnedPerson.name}'s number was updated to ${returnedPerson.number}`;
         setNewName('');
         setNewNumber('');
         setPersons(
           persons.map((p) => (p.id !== returnedPerson.id ? p : returnedPerson))
         ); // trigger re-render
+        displayNotification(msg, 'success');
       })
       .catch((err) => {
         console.log(err.message);
+        const msg = `Something wrong...`;
+        displayNotification(msg, 'error');
       });
   };
 
@@ -85,15 +100,21 @@ const App = () => {
     personService
       .remove(deletedPerson)
       .then(() => {
-        alert(`Deleted ${deletedPerson.name}!`);
+        const msg = `Deleted ${deletedPerson.name}!`;
         setPersons(persons.filter((person) => person.id !== deletedPerson.id));
+        displayNotification(msg, 'success');
       })
-      .catch((err) => console.log(err.message));
+      .catch((err) => {
+        console.log(err.message);
+        const msg = `Something wrong...`;
+        displayNotification(msg, 'error');
+      });
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification}/>
       <Filter filterValue={newFilter} onFilterChange={handleOnFilterChange} />
       <h3>add a new</h3>
       <PersonForm
