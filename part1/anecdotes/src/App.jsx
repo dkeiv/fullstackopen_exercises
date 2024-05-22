@@ -1,58 +1,88 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
+import noteService from './services/notes';
 
-const Header = ({ text }) => <h2>{text}</h2>
-const Button = ({ name, onClickHandler }) => <button onClick={onClickHandler}>{name}</button>
-
-const Anecdote = ({ anecdote, vote }) => {
-  return (
-    <>
-      <div>{anecdote}</div>
-      <div>has {vote}</div>
-    </>
-  )
-}
+import Note from './components/Note';
+import Notification from './components/Notification';
+import Footer from './components/Footer'
 
 const App = () => {
-  const anecdotes = [
-    'If it hurts, do it more often.',
-    'Adding manpower to a late software project makes it later!',
-    'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-    'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-    'Premature optimization is the root of all evil.',
-    'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
-    'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
-    'The only way to go fast, is to go well.'
-  ]
+  const [notes, setNotes] = useState([]);
+  const [newNote, setNewNote] = useState('');
+  const [showAll, setShowAll] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('some error happened...');
 
-  const [selected, setSelected] = useState(0)
-  const [points, setPoints] = useState(Array(anecdotes.length).fill(0))
+  useEffect(() => {
+    noteService
+      .getAll()
+      .then((allNotes) => setNotes(allNotes))
+      .catch((err) => console.log(err));
+  }, []);
 
-  const getRndInteger = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
-  const maxOfArray = (arr) => Math.max(...arr)
-  const mostVote = () => maxOfArray(points)
-  const mostVoteAnecdoteIndex = () => points.indexOf(mostVote())
+  const addNote = (event) => {
+    event.preventDefault();
+    const noteObject = {
+      content: newNote,
+      important: Math.random() > 0.5,
+    };
 
-  const onNextHandler = () => {
-    const i = getRndInteger(0, anecdotes.length - 1)
-    setSelected(i)
-  }
+    noteService
+      .create(noteObject)
+      .then((returnedNote) => {
+        setNotes(notes.concat(returnedNote));
+        setNewNote('');
+      })
+      .catch((err) => console.log(err));
+  };
 
-  const onVoteHandler = () => {
-    const newVote = [...points]
-    newVote[selected] += 1
-    setPoints(newVote)
-  }
-  
+  const handleNoteChange = (event) => {
+    setNewNote(event.target.value);
+  };
+
+  const toggleImportanceOf = (id) => {
+    const note = notes.find((note) => note.id === id);
+    const changedNote = { ...note, important: !note.important };
+
+    noteService
+      .update(id, changedNote)
+      .then((returnedNote) => {
+        setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)));
+      })
+      .catch((err) => {
+        console.log(err.message);
+        const errMsg = `the note '${note.content}' was already deleted from server`;
+        setErrorMessage(errMsg);
+        setTimeout(() => setErrorMessage(null), 5000);
+        setNotes(notes.filter((n) => n.id !== id));
+      });
+  };
+
+  const notesToShow = showAll ? notes : notes.filter((note) => note.important);
+
   return (
-    <>
-      <Header text="Anecdote of the day" />
-      <Anecdote anecdote={anecdotes[selected]} vote={points[selected]} />
-      <Button name="next anecdote" onClickHandler={onNextHandler} />
-      <Button name="vote" onClickHandler={onVoteHandler} />
-      <Header text="Ancdote with the most votes" />
-      <Anecdote anecdote={anecdotes[mostVoteAnecdoteIndex()]} vote={mostVote()} />
-    </>
-  )
-}
+    <div>
+      <h1>Notes</h1>
+      <Notification message={errorMessage} />
+      <div>
+        <button onClick={() => setShowAll(!showAll)}>
+          show {showAll ? 'important' : 'all'}
+        </button>
+      </div>
+      <ul>
+        {notesToShow.map((note) => (
+          <Note
+            key={note.id}
+            note={note}
+            toggleImportance={() => toggleImportanceOf(note.id)}
+          />
+        ))}
+      </ul>
+      <form onSubmit={addNote}>
+        <input value={newNote} onChange={handleNoteChange} />
+        <button type="submit">save</button>
+      </form>
+      <Footer />
+    </div>
+  );
+};
 
-export default App
+export default App;
