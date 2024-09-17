@@ -1,6 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 const app = express();
+
+app.use(express.static('dist'));
+
+app.use(cors());
 
 app.use(express.json());
 morgan.token('body', function (request) {
@@ -32,20 +37,12 @@ let persons = [
 ];
 
 const generateId = () => {
-  const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
+  const maxId = persons.length > 0 ? Math.max(...persons.map(n => n.id)) : 0;
   return maxId + 1;
 };
 
 app.get('/', (request, response) => {
-  response.send(
-    `<h1>Hi there!!!</h1>
-        <ul>
-            <li>
-                <a href="http://localhost:3001/api/persons">/api/persons</a>
-            </li>
-        </ul>
-    `
-  );
+  response.send(`<h1>Hi there!!!</h1>`);
 });
 
 app.get('/api/persons', (request, response) => {
@@ -60,7 +57,7 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id);
-  const person = persons.find((person) => person.id === id);
+  const person = persons.find(person => person.id === id);
   if (person) {
     response.send(person);
   } else {
@@ -71,7 +68,7 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id === id);
+  persons = persons.filter(person => person.id === id);
 
   response.status(204).end();
 });
@@ -91,7 +88,7 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).json({ error: 'missing name and/or number' });
   }
 
-  if (persons.filter((p) => p.name === person.name)) {
+  if (persons.filter(p => p.name === person.name)) {
     return response.status(400).json({ error: 'name must be unique' });
   }
 
@@ -99,6 +96,6 @@ app.post('/api/persons', (request, response) => {
   response.send(person);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT);
 console.log(`Server is running at http://localhost:${PORT} ...`);
