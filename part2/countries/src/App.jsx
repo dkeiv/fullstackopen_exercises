@@ -27,13 +27,14 @@ const App = () => {
     return country.name.common.toLowerCase().includes(modifiedQuery);
   };
 
-  const filteredCountries = countries ? countries.filter(byQuery(query)) : -1;
+  const filteredCountries = countries ? countries.filter(byQuery(query)) : countries;
 
   return (
     <>
       <div>
         <SearchForm query={query} handleOnChange={handleOnChange} />
         <Countries countries={filteredCountries} />
+        {/* {console.log(import.meta.env.VITE_SOMEKEY)} */}
       </div>
     </>
   );
