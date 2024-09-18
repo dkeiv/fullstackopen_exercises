@@ -49,8 +49,9 @@ const Note = mongoose.model('Note', noteSchema);
 
 Note.find({})
   .then(result => {
+    console.log('Note list:');
     result.forEach(note => {
-      console.log(note);
+      console.log(JSON.stringify(note));
     });
   })
   .catch(err => console.log(err))
