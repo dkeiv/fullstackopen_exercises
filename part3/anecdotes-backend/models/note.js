@@ -1,19 +1,5 @@
 const mongoose = require('mongoose');
 
-// prettier-ignore
-const db = process.env.DATABASE_URL
-  .replace('<DATABASE_PASSWORD>',process.env.DATABASE_PASSWORD)
-  .replace('<DATABASE_NAME>', process.env.DATABASE_NAME);
-
-mongoose
-  .connect(db)
-  .then(() => {
-    console.log(`Connected to ${process.env.DATABASE_NAME} database!`);
-  })
-  .catch(err => {
-    console.log(err.message);
-  });
-
 // <<========================================================================>>
 // schema
 const noteSchema = new mongoose.Schema({
