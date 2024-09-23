@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "test": "node --test"
+    "test": "node --test",
+    "testone": "node --test-only tests/list_helper.test.js"
   },
   "author": "dkeiv",
   "license": "ISC",
