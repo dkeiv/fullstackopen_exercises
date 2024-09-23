@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "author": "dkeiv",
   "license": "ISC",
@@ -15,6 +15,7 @@
     "mongoose": "^8.6.3"
   },
   "devDependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "lodash": "^4.17.21"
   }
 }
