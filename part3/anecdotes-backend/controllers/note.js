@@ -1,13 +1,12 @@
 const noteRouter = require('express').Router();
 const Note = require('../models/note');
 
-noteRouter.get('/', (request, response) => {
-  Note.find({}).then(notes => {
-    response.json(notes);
-  });
+noteRouter.get('/', async (request, response) => {
+  const notes = await Note.find({});
+  response.json(notes);
 });
 
-noteRouter.post('/', (request, response) => {
+noteRouter.post('/', async (request, response) => {
   const body = request.body;
 
   if (!body.content) {
@@ -21,26 +20,23 @@ noteRouter.post('/', (request, response) => {
     important: body.important || false,
   });
 
-  note.save().then(savedNote => {
-    response.json(savedNote);
-  });
+  const savedNote = await note.save();
+  response.json(savedNote);
 });
 
-noteRouter.get('/:id', (request, response) => {
-  const id = Number(request.params.id);
-  Note.findById(id).then(note => {
-    response.json(note);
-  });
+noteRouter.get('/:id', async (request, response) => {
+  // const id = Number(request.params.id);
+  const note = await Note.findById(request.params.id);
+  response.json(note);
 });
 
-noteRouter.delete('/:id', (request, response) => {
-  const id = Number(request.params.id);
-  Note.findByIdAndDelete(id).then(() => {
-    response.status(204).end();
-  });
+noteRouter.delete('/:id', async (request, response) => {
+  // const id = Number(request.params.id);
+  await Note.findByIdAndDelete(request.params.id);
+  response.status(204).end();
 });
 
-noteRouter.put('/:id', (request, response, next) => {
+noteRouter.put('/:id', async (request, response, next) => {
   const body = request.body;
 
   const note = {
@@ -48,11 +44,14 @@ noteRouter.put('/:id', (request, response, next) => {
     important: body.important,
   };
 
-  Note.findByIdAndUpdate(request.params.id, note, { new: true })
-    .then(updatedNote => {
-      response.json(updatedNote);
-    })
-    .catch(error => next(error));
+  try {
+    const updatedNote = await Note.findByIdAndUpdate(request.params.id, note, {
+      new: true,
+    });
+    response.json(updatedNote);
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = noteRouter;
