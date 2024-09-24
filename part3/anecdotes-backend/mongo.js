@@ -5,14 +5,13 @@ require('dotenv').config({
 const mongoose = require('mongoose');
 
 // prettier-ignore
-const db = process.env.DATABASE_URL
+const db = process.env.TEST_MONGODB_URI
   .replace('<DATABASE_PASSWORD>',process.env.DATABASE_PASSWORD)
-  .replace('<DATABASE_NAME>', process.env.DATABASE_NAME);
 
 mongoose
   .connect(db)
   .then(() => {
-    console.log(`Connected to ${process.env.DATABASE_NAME} database!`);
+    console.log(`Connected to mongodb!`);
   })
   .catch(err => {
     console.log(err);
@@ -29,32 +28,32 @@ const noteSchema = new mongoose.Schema({
 // model
 const Note = mongoose.model('Note', noteSchema);
 
-// const note = new Note({
-//   content: 'Mongoose makes things easy',
-//   important: true,
-// });
+const note = new Note({
+  content: 'What the hell is nextjs :p',
+  important: false,
+});
 
-// note
-//   .save()
-//   .then(result => {
-//     console.log('note saved!');
-//   })
-//   .catch(err => {
-//     console.log(err);
-//   })
-//   .finally(() => {
-//     // close the connection and exit the program
-//     mongoose.connection.close();
-//   });
-
-Note.find({})
-  .then(result => {
-    console.log('Note list:');
-    result.forEach(note => {
-      console.log(JSON.stringify(note));
-    });
+note
+  .save()
+  .then(() => {
+    console.log('note saved!');
   })
-  .catch(err => console.log(err))
+  .catch(err => {
+    console.log(err);
+  })
   .finally(() => {
+    // close the connection and exit the program
     mongoose.connection.close();
   });
+
+// Note.find({})
+//   .then(result => {
+//     console.log('Note list:');
+//     result.forEach(note => {
+//       console.log(JSON.stringify(note));
+//     });
+//   })
+//   .catch(err => console.log(err))
+//   .finally(() => {
+//     mongoose.connection.close();
+//   });

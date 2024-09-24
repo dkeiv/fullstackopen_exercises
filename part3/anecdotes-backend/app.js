@@ -11,9 +11,9 @@ const noteRouter = require('./controllers/note');
 logger.info('󰌘 Connecting to MongoDB...');
 
 mongoose
-  .connect(config.MONGODB_URI)
+  .connect(config.MONGODB)
   .then(() => {
-    logger.info(` Connected to ${config.DATABASE_NAME} database!`);
+    logger.info(` Connected to MongoDB!`);
   })
   .catch(err => {
     logger.error(` Error: ${err.message}`);
