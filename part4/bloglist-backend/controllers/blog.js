@@ -10,9 +10,15 @@ blogRouter.get('/', (request, response) => {
 blogRouter.post('/', (request, response) => {
   const blog = new Blog(request.body);
 
-  blog.save().then(result => {
-    response.status(201).json(result);
-  });
+  blog
+    .save()
+    .then(result => {
+      response.status(201).json(result);
+    })
+    .catch(err => {
+      // console.log(err);
+      response.status(400).end();
+    });
 });
 
 module.exports = blogRouter;
