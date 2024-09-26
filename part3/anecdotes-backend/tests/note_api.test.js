@@ -65,7 +65,7 @@ test('a valid note can be added ', async () => {
   assert(contents.includes('async/await simplifies making async calls'));
 });
 
-test.only('note without content is not added', async () => {
+test('note without content is not added', async () => {
   const newNote = {
     important: true,
   };
@@ -74,8 +74,31 @@ test.only('note without content is not added', async () => {
 
   const notesAtEnd = await TestHelper.notesInDb();
   assert.strictEqual(notesAtEnd.length, TestHelper.initialNotes.length);
+});
 
-  after(async () => {
-    await mongoose.connection.close();
-  });
+test.only('a specific note can be viewed', async () => {
+  const notesAtStart = await TestHelper.notesInDb();
+
+  const noteToView = notesAtStart[0];
+
+  const resultNote = await api
+    .get(`/api/v1/notes/${noteToView.id}`)
+    .expect(200)
+    .expect('Content-Type', /application\/json/);
+
+  assert.deepStrictEqual(resultNote.body, noteToView);
+});
+
+test.only('a note can be deleted', async () => {
+  const notesAtStart = await TestHelper.notesInDb();
+  const noteToDelete = notesAtStart[0];
+
+  await api.delete(`/api/v1/notes/${noteToDelete.id}`).expect(204);
+
+  const notesAtEnd = await TestHelper.notesInDb();
+
+  const contents = notesAtEnd.map(r => r.content);
+  assert(!contents.includes(noteToDelete.content));
+
+  assert.strictEqual(notesAtEnd.length, TestHelper.initialNotes.length - 1);
 });

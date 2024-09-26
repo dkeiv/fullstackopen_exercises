@@ -6,7 +6,7 @@ noteRouter.get('/', async (request, response) => {
   response.json(notes);
 });
 
-noteRouter.post('/', async (request, response) => {
+noteRouter.post('/', async (request, response, next) => {
   const body = request.body;
 
   if (!body.content) {
@@ -20,20 +20,36 @@ noteRouter.post('/', async (request, response) => {
     important: body.important || false,
   });
 
-  const savedNote = await note.save();
-  response.status(201).json(savedNote);
+  try {
+    const savedNote = await note.save();
+    response.status(201).json(savedNote);
+  } catch (err) {
+    next(err);
+  }
 });
 
-noteRouter.get('/:id', async (request, response) => {
+noteRouter.get('/:id', async (request, response, next) => {
   // const id = Number(request.params.id);
-  const note = await Note.findById(request.params.id);
-  response.json(note);
+  try {
+    const note = await Note.findById(request.params.id);
+    if (note) {
+      response.json(note);
+    } else {
+      response.status(400).end();
+    }
+  } catch (err) {
+    next(err);
+  }
 });
 
-noteRouter.delete('/:id', async (request, response) => {
+noteRouter.delete('/:id', async (request, response, next) => {
   // const id = Number(request.params.id);
-  await Note.findByIdAndDelete(request.params.id);
-  response.status(204).end();
+  try {
+    await Note.findByIdAndDelete(request.params.id);
+    response.status(204).end();
+  } catch (err) {
+    next(err);
+  }
 });
 
 noteRouter.put('/:id', async (request, response, next) => {
