@@ -1,17 +1,22 @@
-require('dotenv').config({ debug: true, encoding: 'utf8' });
+require('dotenv').config({
+  debug: true,
+  encoding: 'utf8',
+});
 
 const PORT = process.env.PORT || 3001;
-const DATABASE_URL = process.env.DATABASE_URL;
+const NODE_ENV = process.env.NODE_ENV;
+const MONGODB_URI = process.env.MONGODB_URI;
+const TEST_MONGODB_URI = process.env.TEST_MONGODB_URI;
 const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
-const DATABASE_NAME = process.env.DATABASE_NAME;
 
-// prettier-ignore
-const MONGODB_URI = DATABASE_URL
-  .replace('<DATABASE_PASSWORD>', DATABASE_PASSWORD)
-  .replace('<DATABASE_NAME>', DATABASE_NAME);
+const MONGODB =
+  NODE_ENV === 'test'
+    ? TEST_MONGODB_URI.replace('<DATABASE_PASSWORD>', DATABASE_PASSWORD)
+    : MONGODB_URI.replace('<DATABASE_PASSWORD>', DATABASE_PASSWORD);
+
+// console.log(MONGODB);
 
 module.exports = {
   PORT,
-  DATABASE_NAME,
-  MONGODB_URI,
+  MONGODB,
 };

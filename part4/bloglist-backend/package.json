@@ -4,9 +4,9 @@
   "description": "fullstackopen exercises",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "test": "node --test",
-    "testone": "node --test-only tests/list_helper.test.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "test": "cross-env NODE_ENV=test node --test --test-only tests/blog_api.test.js"
   },
   "author": "dkeiv",
   "license": "ISC",
@@ -16,7 +16,10 @@
     "mongoose": "^8.6.3"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
-    "lodash": "^4.17.21"
+    "globals": "^15.9.0",
+    "lodash": "^4.17.21",
+    "supertest": "^7.0.0"
   }
 }

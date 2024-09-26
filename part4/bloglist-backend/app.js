@@ -10,7 +10,7 @@ const blogRouter = require('./controllers/blog');
 // conect to mongodb
 logger.info('󰌘 Connecting to MongoDB...');
 mongoose
-  .connect(config.MONGODB_URI)
+  .connect(config.MONGODB)
   .then(() => {
     logger.info(` Connected to ${config.DATABASE_NAME} database!`);
   })
