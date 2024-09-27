@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require('node:test');
+const { test, after, beforeEach, describe } = require('node:test');
 const assert = require('node:assert');
 const mongoose = require('mongoose');
 const supertest = require('supertest');
@@ -10,7 +10,7 @@ const api = supertest(app);
 // <<==============>>
 //  initializing data
 const Blog = require('../models/blog');
-const { title } = require('node:process');
+
 beforeEach(async () => {
   await Blog.deleteMany({});
   for (let blog of testHelper.initialBlogs) {
@@ -73,7 +73,7 @@ test('missing likes property, returns likes = 0', async () => {
   assert.strictEqual(res.body.likes, 0);
 });
 
-test.only('missing title property, returns 400', async () => {
+test('missing title property, returns 400', async () => {
   const missingTitleBlog = {
     author: 'local',
     url: 'http://localhost',
@@ -82,13 +82,54 @@ test.only('missing title property, returns 400', async () => {
   await api.post('/api/v1/blogs').send(missingTitleBlog).expect(400);
 });
 
-test.only('missing url property, returns 400', async () => {
+test('missing url property, returns 400', async () => {
   const missingUrlBlog = {
     title: 'This blog is missing the url',
     author: 'local',
   };
 
   await api.post('/api/v1/blogs').send(missingUrlBlog).expect(400);
+});
+
+describe('testing delete endpoint:', () => {
+  test('delete with valid blog', async () => {
+    let blogs = await testHelper.getAllBlogsInDB();
+    const deleteBlog = blogs[0];
+
+    await api.delete(`/api/v1/blogs/${deleteBlog.id}`).expect(204);
+
+    blogs = await testHelper.getAllBlogsInDB();
+    assert.strictEqual(blogs.length, testHelper.initialBlogs.length - 1);
+
+    const titles = blogs.map(b => b.title);
+    assert(!titles.includes(deleteBlog.title));
+  });
+
+  test('delete with invalid id', async () => {
+    const invalidID = '66f6c94ba839eb54b8b0b2dd';
+    await api.delete(`/api/v1/blogs/${invalidID}`).expect(404);
+  });
+});
+
+describe('test update endpoint', () => {
+  test('update a valid blog', async () => {
+    let blogs = await testHelper.getAllBlogsInDB();
+    let updateBlog = blogs[0];
+    const newLikesNumber = 999;
+
+    await api
+      .patch(`/api/v1/blogs/${updateBlog.id}`)
+      .send({
+        likes: newLikesNumber,
+      })
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    blogs = await testHelper.getAllBlogsInDB();
+    updateBlog = blogs[0];
+
+    assert.strictEqual(updateBlog.likes, newLikesNumber);
+  });
 });
 
 // <<==============>>
