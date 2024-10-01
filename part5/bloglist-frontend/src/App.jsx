@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import Blog from './components/Blog';
 import Login from './components/Login';
+import Notification from './components/Notification';
 import blogService from './services/blogs';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
+  const [noti, setNoti] = useState(null);
   const [newBlog, setNewBlog] = useState({
     title: '',
     author: '',
@@ -40,7 +42,18 @@ const App = () => {
 
     try {
       const data = await blogService.createBlog(newBlog);
-      console.log(data);
+      setNoti(`added a new blog: ${data.title}`);
+      setBlogs(blogs.concat(data));
+
+      setTimeout(() => {
+        setNoti(null);
+      }, 3000);
+
+      setNewBlog({
+        title: '',
+        author: '',
+        url: '',
+      });
     } catch (err) {
       console.log(err.response.data);
     }
@@ -89,6 +102,7 @@ const App = () => {
   return user ? (
     <div>
       <h2>blogs</h2>
+      {noti && <Notification message={noti} />}
       <div>{user.name} logged in</div>
       <button type='button' onClick={handleLogout}>
         logout
