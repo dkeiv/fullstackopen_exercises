@@ -5,7 +5,7 @@ import Notification from './Notification';
 const Login = ({ handleLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [message, setMessage] = useState(null);
 
   const login = async e => {
     e.preventDefault();
@@ -13,9 +13,9 @@ const Login = ({ handleLogin }) => {
       const user = await loginService.login({ username, password });
       handleLogin(user);
     } catch (err) {
-      setErrorMsg('Wrong credentials');
+      setMessage({ content: 'Wrong credentials', isError: true });
       setTimeout(() => {
-        setErrorMsg(null);
+        setMessage(null);
       }, 3000);
     }
   };
@@ -23,7 +23,7 @@ const Login = ({ handleLogin }) => {
   return (
     <>
       <h1>login to application</h1>
-      {errorMsg && <Notification message={errorMsg} error={true} />}
+      {message && <Notification message={message} />}
       <form onSubmit={e => login(e)}>
         <div>
           username

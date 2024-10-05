@@ -64,4 +64,34 @@ blogRouter.delete(
   }
 );
 
+blogRouter.put(
+  '/:id',
+  middlewares.userExtractor,
+  async (request, response, next) => {
+    try {
+      const user = request.user;
+      const blog = await Blog.findById(request.params.id);
+      if (!blog) {
+        return response.status(404).end();
+      }
+
+      if (user._id.toString() === blog.user.toString()) {
+        const updatedBlog = await Blog.findByIdAndUpdate(
+          request.params.id,
+          request.body,
+          { new: true }
+        ).populate('user', {
+          username: 1,
+          name: 1,
+        });
+        return response.status(200).json(updatedBlog);
+      } else {
+        return response.status(401).json({ error: 'invalid user' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 module.exports = blogRouter;

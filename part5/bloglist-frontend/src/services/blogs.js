@@ -2,8 +2,11 @@ import axios from 'axios';
 const baseUrl = '/apihost/api/v1/blogs';
 
 let token = null;
+let config = null;
+
 const setToken = newToken => {
   token = `Bearer ${newToken}`;
+  config = { headers: { Authorization: token } };
 };
 
 const getAll = async () => {
@@ -12,10 +15,27 @@ const getAll = async () => {
 };
 
 const createBlog = async newBlog => {
-  const config = { headers: { Authorization: token } };
-  console.log(token);
   const response = await axios.post(baseUrl, newBlog, config);
   return response.data;
 };
 
-export default { getAll, createBlog, setToken };
+const updateBlog = async updatedBlog => {
+  const response = await axios.put(
+    `${baseUrl}/${updatedBlog.id}`,
+    {
+      user: updatedBlog.user.id,
+      likes: updatedBlog.likes,
+      author: updatedBlog.author,
+      title: updatedBlog.title,
+      url: updatedBlog.url,
+    },
+    config
+  );
+  return response.data;
+};
+
+const removeBlog = id => {
+  return axios.delete(`${baseUrl}/${id}`, config);
+};
+
+export default { getAll, createBlog, setToken, updateBlog, removeBlog };
