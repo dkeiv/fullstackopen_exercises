@@ -1,7 +1,7 @@
 import Notes from './components/Notes';
 import NewNote from './components/NewNote';
 // import VisibilityFilter from './components/VisibilityFilter';
-import TextFilter from './components/TextFilter';
+import TextFilter from './components/ContentFilter';
 
 const App = () => {
   return (

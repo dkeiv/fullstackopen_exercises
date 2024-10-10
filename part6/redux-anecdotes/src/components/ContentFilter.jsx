@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux';
 import { filterChange } from '../reducers/filterReducer';
 
-const TextFilter = () => {
+const ContentFilter = () => {
   const dispatch = useDispatch();
 
   const handleChange = event => {
@@ -19,4 +19,4 @@ const TextFilter = () => {
   );
 };
 
-export default TextFilter;
+export default ContentFilter;
