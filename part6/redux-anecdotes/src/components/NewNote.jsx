@@ -4,11 +4,11 @@ import { createNote } from '../reducers/noteReducer';
 const createNewNote = () => {
   const dispatch = useDispatch();
 
-  const createNewNote = e => {
+  const createNewNote = async e => {
     e.preventDefault();
-    const anecdote = e.target.note.value;
+    const content = e.target.note.value;
+    dispatch(createNote({ content, votes: 0 }));
     e.target.note.value = '';
-    dispatch(createNote(anecdote));
   };
 
   return (

@@ -1,22 +1,30 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { voteNote } from '../reducers/noteReducer';
+import { voteNote, selectNotes, fetchAllNote } from '../reducers/noteReducer';
 import Notification from '../components/Notification';
-import { createNoti, removeNoti } from '../reducers/notiReducer';
+import { setNoti } from '../reducers/notiReducer';
+import { createSelector } from '@reduxjs/toolkit';
+import { selectFilter } from '../reducers/filterReducer';
 
 const Notes = () => {
   const dispatch = useDispatch();
-  const notes = useSelector(({ filter, notes }) =>
-    notes
-      .filter(note => note.content.toLowerCase().includes(filter.toLowerCase()))
-      .sort((n1, n2) => n2.votes - n1.votes)
+
+  const getNotes = createSelector(
+    [selectNotes, selectFilter],
+    (notes, filter) =>
+      notes.data
+        .filter(note =>
+          note.content.toLowerCase().includes(filter.toLowerCase())
+        )
+        .sort((n1, n2) => n2.votes - n1.votes)
   );
+
+  const notes = useSelector(getNotes);
 
   const noti = useSelector(({ noti }) => noti);
 
   const vote = note => {
-    dispatch(voteNote(note.id));
-    dispatch(createNoti(`you voted: ${note.content}`));
-    setTimeout(() => dispatch(removeNoti()), 3000);
+    dispatch(voteNote(note));
+    dispatch(setNoti(`you voted: ${note.content}`, 3));
   };
 
   return (

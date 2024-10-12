@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { act } from 'react';
 
 const initialState = '';
 
@@ -17,4 +16,19 @@ const notiSlice = createSlice({
 });
 
 export const { createNoti, removeNoti } = notiSlice.actions;
+
+let timeoutID = null;
+export const setNoti = (message, seconds) => {
+  // NOTE: why does this work?
+  return async dispatch => {
+    dispatch(createNoti(message));
+
+    if (timeoutID) {
+      clearTimeout(timeoutID);
+    }
+
+    timeoutID = setTimeout(() => dispatch(removeNoti()), seconds * 1000);
+  };
+};
+
 export default notiSlice.reducer;

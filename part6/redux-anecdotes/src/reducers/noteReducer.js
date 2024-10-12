@@ -1,76 +1,93 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import noteService from '../service/notes';
 
-const generateId = () => (100000 * Math.random()).toFixed(0);
+export const selectNotes = state => state.notes;
 
-const asObject = anecdote => {
-  return {
-    content: anecdote,
-    id: generateId(),
-    votes: 0,
-  };
+export const fetchAllNote = createAsyncThunk(
+  'note/fetchAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const notes = await noteService.fetchAllNotes();
+      return notes;
+    } catch (error) {
+      return rejectWithValue('something went wrong!');
+    }
+  }
+);
+
+export const createNote = createAsyncThunk(
+  'note/create',
+  async (noteData, { rejectWithValue }) => {
+    try {
+      const newNote = await noteService.createNote(noteData);
+      return newNote;
+    } catch (error) {
+      return rejectWithValue('something went wrong!');
+    }
+  }
+);
+
+export const voteNote = createAsyncThunk(
+  'note/vote',
+  async (note, { rejectWithValue }) => {
+    try {
+      const votedNote = await noteService.voteNote(note);
+      return votedNote;
+    } catch (error) {
+      return rejectWithValue('something went wrong!');
+    }
+  }
+);
+
+const initialState = {
+  isLoading: false,
+  data: [],
 };
-
-// export const voteNote = id => {
-//   return {
-//     type: 'note/vote',
-//     payload: id,
-//   };
-// };
-
-// export const creatNote = anecdote => {
-//   return {
-//     type: 'note/create',
-//     payload: asObject(anecdote),
-//   };
-// };
-
-const anecdotes = [
-  'reducer defines how redux store works',
-  'state of store can contain any data',
-];
-
-const initialState = anecdotes.map(anecdote => asObject(anecdote));
-
-// const noteReducer = (state = initialState, action) => {
-//   switch (action.type) {
-//     case 'note/vote': {
-//       return state
-//         .map(note => {
-//           if (note.id === action.payload) {
-//             return { ...note, votes: note.votes + 1 };
-//           } else {
-//             return note;
-//           }
-//         })
-//         .sort((n1, n2) => n2.votes - n1.votes);
-//     }
-//     case 'note/create': {
-//       return state.concat(action.payload);
-//     }
-//     default:
-//       return state;
-//   }
-// };
 
 const noteSlice = createSlice({
   name: 'notes',
   initialState,
-  reducers: {
-    createNote(state, action) {
-      console.log(action.payload);
-      state.push(asObject(action.payload));
-    },
-
-    voteNote(state, action) {
-      const id = action.payload;
-      return state.map(note => {
-        if (note.id === id) {
-          return { ...note, votes: note.votes + 1 };
-        } else return note;
-      });
-    },
-  },
+  reducers: {},
+  extraReducers: builder =>
+    builder
+      .addCase(fetchAllNote.pending, state => {
+        state.isLoading = true;
+      })
+      .addCase(fetchAllNote.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchAllNote.rejected, (state, action) => {
+        console.log(action.payload);
+        state.isLoading = false;
+      })
+      .addCase(createNote.pending, state => {
+        state.isLoading = true;
+      })
+      .addCase(createNote.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data.push(action.payload);
+      })
+      .addCase(createNote.rejected, (state, action) => {
+        console.log(action.payload);
+        state.isLoading = false;
+      })
+      .addCase(voteNote.pending, state => {
+        state.isLoading = true;
+      })
+      .addCase(voteNote.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data = state.data.map(note => {
+          if (note.id === action.payload.id) {
+            return action.payload;
+          } else {
+            return note;
+          }
+        });
+      })
+      .addCase(voteNote.rejected, state => {
+        state.isLoading = false;
+      }),
 });
 
-export const { createNote, voteNote } = noteSlice.actions;
 export default noteSlice.reducer;
