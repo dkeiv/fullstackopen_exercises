@@ -1,21 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { creatNew } from '../services/anecdotes';
-import { useState } from 'react';
-import Notification from '../components/Notification';
+import {
+  useNotificationDispatch,
+  createAction,
+  clearAction,
+  errorAction,
+} from '../hook/NotificationContext';
 
 const AnecdoteForm = () => {
-  const [message, setMessage] = useState('');
   const queryClient = useQueryClient();
+  const dispatch = useNotificationDispatch();
 
   const createNewMutation = useMutation({
     mutationFn: creatNew,
-    onSuccess: () => {
+    onSuccess: note => {
+      console.log(note);
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] });
+      dispatch(createAction(note));
+      setTimeout(() => {
+        dispatch(clearAction);
+      }, 3000);
     },
     onError: error => {
-      setMessage(error.response.data.error);
+      let message = 'unknown error';
+      message = error.response?.data.error;
+      dispatch(errorAction(message));
       setTimeout(() => {
-        setMessage('');
+        dispatch(clearAction);
       }, 3000);
     },
   });
@@ -29,8 +40,6 @@ const AnecdoteForm = () => {
 
   return (
     <div>
-      <Notification message={message} />
-
       <h3>create new</h3>
       <form onSubmit={onCreate}>
         <input name='anecdote' />

@@ -1,6 +1,12 @@
 import AnecdoteForm from './components/AnecdoteForm';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchAll, updateAnecdote } from './services/anecdotes';
+import Notification from './components/Notification';
+import {
+  clearAction,
+  useNotificationDispatch,
+  voteAction,
+} from './hook/NotificationContext';
 
 const App = () => {
   const result = useQuery({
@@ -9,11 +15,16 @@ const App = () => {
     retry: 1,
   });
   const queryClient = useQueryClient();
+  const dispatch = useNotificationDispatch();
 
   const updateMutation = useMutation({
     mutationFn: updateAnecdote,
-    onSuccess: () => {
+    onSuccess: note => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] });
+      dispatch(voteAction(note));
+      setTimeout(() => {
+        dispatch(clearAction);
+      }, 3000);
     },
   });
 
@@ -35,7 +46,7 @@ const App = () => {
   return (
     <div>
       <h3>Anecdote app</h3>
-
+      <Notification />
       <AnecdoteForm />
 
       {anecdotes.map(anecdote => (

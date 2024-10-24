@@ -1,4 +1,7 @@
-const Notification = ({ message }) => {
+import { useNotificationValue } from '../hook/NotificationContext';
+
+const Notification = () => {
+  const message = useNotificationValue();
   const style = {
     border: 'solid',
     padding: 10,
