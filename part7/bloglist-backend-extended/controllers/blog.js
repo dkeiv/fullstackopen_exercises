@@ -18,8 +18,8 @@ blogRouter.get('/', middlewares.userExtractor, async (req, res, next) => {
 
 blogRouter.post('/', middlewares.userExtractor, async (req, res, next) => {
   try {
-    const user = request.user;
-    if (!request.body.title) {
+    const user = req.user;
+    if (!req.body.title) {
       return res.status(400).json({
         status: 'fail',
         message: 'missing title',
@@ -27,7 +27,7 @@ blogRouter.post('/', middlewares.userExtractor, async (req, res, next) => {
     }
 
     const blog = new Blog({
-      ...request.body,
+      ...req.body,
       user: user._id,
     });
 
@@ -61,15 +61,15 @@ blogRouter.get('/:id', middlewares.userExtractor, async (req, res, next) => {
 
 blogRouter.delete('/:id', middlewares.userExtractor, async (req, res, next) => {
   try {
-    const user = request.user;
+    const user = req.user;
 
-    const blog = await Blog.findById(request.params.id);
+    const blog = await Blog.findById(req.params.id);
     if (!blog) {
       return res.status(404).end();
     }
 
     if (user._id.toString() === blog.user.toString()) {
-      await Blog.findByIdAndDelete(request.params.id);
+      await Blog.findByIdAndDelete(req.params.id);
       return res.status(204).end();
     } else {
       return res.status(401).json({ error: 'invalid user' });
@@ -81,16 +81,16 @@ blogRouter.delete('/:id', middlewares.userExtractor, async (req, res, next) => {
 
 blogRouter.put('/:id', middlewares.userExtractor, async (req, res, next) => {
   try {
-    const user = request.user;
-    const blog = await Blog.findById(request.params.id);
+    const user = req.user;
+    const blog = await Blog.findById(req.params.id);
     if (!blog) {
       return res.status(404).end();
     }
 
     if (user._id.toString() === blog.user.toString()) {
       const updatedBlog = await Blog.findByIdAndUpdate(
-        request.params.id,
-        request.body,
+        req.params.id,
+        req.body,
         { new: true }
       ).populate('user', {
         username: 1,
@@ -104,5 +104,31 @@ blogRouter.put('/:id', middlewares.userExtractor, async (req, res, next) => {
     next(error);
   }
 });
+
+blogRouter.post(
+  '/:id/comments',
+  middlewares.userExtractor,
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+
+      const blog = await Blog.findOne({ _id: id }).populate('user', {
+        id: 1,
+        username: 1,
+        name: 1,
+      });
+
+      if (!blog) return res.status(404).end();
+
+      blog.comments.push(content);
+      await blog.save();
+
+      return res.status(201).json(blog);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = blogRouter;

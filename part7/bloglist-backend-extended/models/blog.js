@@ -12,6 +12,13 @@ const blogSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  comments: [
+    {
+      type: String,
+      trim: true,
+      max: [50, 'max length is 50'],
+    },
+  ],
 });
 
 blogSchema.set('toJSON', {
