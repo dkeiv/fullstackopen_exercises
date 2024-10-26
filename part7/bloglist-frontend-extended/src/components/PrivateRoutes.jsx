@@ -3,8 +3,8 @@ import { Navigate, Outlet } from 'react-router-dom';
 import Header from './Header';
 
 const PrivateRoutes = () => {
-  const auth =
-    useAuthValue() || JSON.parse(window.localStorage.getItem('login-user'));
+  const auth = useAuthValue();
+
   return auth ? (
     <>
       <Header />

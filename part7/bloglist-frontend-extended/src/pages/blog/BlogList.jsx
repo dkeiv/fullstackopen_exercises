@@ -13,16 +13,8 @@ import { Togglable } from '../../components';
 import { Link } from 'react-router-dom';
 
 const BlogItem = ({ blog }) => {
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
-  };
-
   return (
-    <div style={blogStyle}>
+    <div className="hover:bg mx-auto my-2 w-[80%] rounded-lg border bg-emerald-200 text-center font-semibold leading-6 text-gray-700 antialiased hover:bg-emerald-300 hover:text-gray-900">
       <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
     </div>
   );
@@ -41,16 +33,16 @@ const BlogList = () => {
 
   const newBlogMutation = useMutation({
     mutationFn: blogService.createBlog,
-    onSuccess: newBlog => {
+    onSuccess: (newBlog) => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
       notiDispatch(createNoti({ content: `added: ${newBlog.title}` }));
       setTimeout(() => {
         notiDispatch(clearNoti());
       }, 3000);
     },
-    onError: err => {
+    onError: (err) => {
       notiDispatch(
-        createNoti({ content: `${err.response?.data.message}`, error: true })
+        createNoti({ content: `${err.response?.data.message}`, error: true }),
       );
       setTimeout(() => {
         notiDispatch(clearNoti());
@@ -58,7 +50,7 @@ const BlogList = () => {
     },
   });
 
-  const createBlog = async newBlog => {
+  const createBlog = async (newBlog) => {
     blogFormRef.current.toggleVisibility();
     newBlogMutation.mutate(newBlog);
   };
@@ -70,16 +62,18 @@ const BlogList = () => {
   const blogs = data;
 
   return (
-    <div>
-      <h2>blogs</h2>
+    <div className="container mx-auto overflow-hidden bg-gray-100">
+      <h1 className="my-5 text-center font-bold">blogs</h1>
       <Togglable buttonLabel={'new blog'} ref={blogFormRef}>
         <BlogForm createBlog={createBlog} />
       </Togglable>
-      {blogs
-        .sort((b1, b2) => b2.likes - b1.likes)
-        .map(blog => (
-          <BlogItem key={blog.id} blog={blog} />
-        ))}
+      <div className="w-full flex-initial items-center justify-center">
+        {blogs
+          .sort((b1, b2) => b2.likes - b1.likes)
+          .map((blog) => (
+            <BlogItem key={blog.id} blog={blog} />
+          ))}
+      </div>
     </div>
   );
 };

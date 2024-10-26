@@ -1,7 +1,8 @@
 import { useContext } from 'react';
 import AppContext from '../AppContext';
 
-export const createNoti = payload => {
+export const createNoti = (payload) => {
+  console.log(payload);
   return {
     type: 'noti/create',
     payload,

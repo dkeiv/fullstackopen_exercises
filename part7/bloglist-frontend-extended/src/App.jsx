@@ -12,19 +12,19 @@ import { Login } from './pages';
 
 const App = () => {
   const notiDispatch = useNotificationDispatch();
-  const userDispatch = useAuthDispatch();
+  const authDispatch = useAuthDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     const loginUser = JSON.parse(window.localStorage.getItem('login-user'));
 
     if (loginUser) {
-      userDispatch(login(loginUser));
+      authDispatch(login(loginUser));
     }
   }, []);
 
-  const handleLogin = user => {
-    userDispatch(login(user));
+  const handleLogin = (user) => {
+    authDispatch(login(user));
 
     window.localStorage.setItem('login-user', JSON.stringify(user));
     navigate('/');
@@ -38,19 +38,18 @@ const App = () => {
   return (
     <>
       <Notification />
-
       <Routes>
-        <Route path='/login' element={<Login handleLogin={handleLogin} />} />
+        <Route path="/login" element={<Login handleLogin={handleLogin} />} />
 
         <Route element={<PrivateRoutes />}>
-          <Route path='/' element={<BlogList />} />
-          <Route path='/blogs/:blogID' element={<Blog />} />
+          <Route path="/" element={<BlogList />} />
+          <Route path="/blogs/:blogID" element={<Blog />} />
 
-          <Route path='/users' element={<UserList />} />
-          <Route path='/users/:userID' element={<User />} />
+          <Route path="/users" element={<UserList />} />
+          <Route path="/users/:userID" element={<User />} />
         </Route>
 
-        <Route path='*' element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
