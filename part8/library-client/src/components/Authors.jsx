@@ -6,6 +6,7 @@ const Authors = () => {
   const { data, loading } = useQuery(ALL_AUTHORS);
 
   if (loading) {
+    console.log(data);
     return <p>loading...</p>;
   }
 
