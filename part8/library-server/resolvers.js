@@ -20,7 +20,9 @@ const resolvers = {
     allAuthors: async () => Author.find({}),
     me: async (root, args, { currentUser }) => {
       if (!currentUser) {
-        throw new GraphQLError('Unauthorized');
+        throw new GraphQLError('Unauthorized', {
+          extensions: { code: 'FORBIDDEN' },
+        });
       }
 
       const user = await User.findOne({ username: currentUser.username });
@@ -32,7 +34,9 @@ const resolvers = {
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
       if (!currentUser) {
-        throw new GraphQLError('Unauthorized');
+        throw new GraphQLError('Unauthorized', {
+          extensions: { code: 'FORBIDDEN' },
+        });
       }
 
       let author = await Author.findOne({ name: args.author });
@@ -60,7 +64,9 @@ const resolvers = {
     },
     editAuthor: async (root, { name, setBornTo }, { currentUser }) => {
       if (!currentUser) {
-        throw new GraphQLError('Unauthorized');
+        throw new GraphQLError('Unauthorized', {
+          extensions: { code: 'FORBIDDEN' },
+        });
       }
 
       const author = await Author.findOne({ name });
