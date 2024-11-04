@@ -1,19 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useSubscription } from '@apollo/client';
 import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
 import Header from './components/Header';
 import Login from './components/Login';
+import Recommend from './components/Recommend';
 import { UserContext } from './utils/userContext';
 import client from './utils/apolloClient';
-import Recommend from './components/Recommend';
+import { ALL_BOOKS, BOOK_ADDED } from './utils/queryies';
 
 const App = () => {
   const [user, setUser] = useState(
     JSON.parse(window.localStorage.getItem('login-user'))
   );
   const navigate = useNavigate();
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      window.alert('Added new book');
+      const { addedBook } = data.data;
+
+      client.cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(addedBook),
+        };
+      });
+    },
+  });
 
   const handleLogout = () => {
     window.localStorage.removeItem('login-user');

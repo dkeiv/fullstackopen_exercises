@@ -3,6 +3,8 @@ const Author = require('./models/author');
 const User = require('./models/user');
 const { GraphQLError } = require('graphql');
 const jwt = require('jsonwebtoken');
+const { PubSub } = require('graphql-subscriptions');
+const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -56,7 +58,11 @@ const resolvers = {
         throw new GraphQLError(error.message);
       }
 
-      return book.populate('author');
+      const returnedBook = book.populate('author');
+
+      pubsub.publish('BOOK_ADDED', { bookAdded: returnedBook });
+
+      return returnedBook;
     },
     addAuthor: async (root, args) => {
       const author = new Author({ ...args });
@@ -90,7 +96,6 @@ const resolvers = {
         throw new GraphQLError(error.message);
       }
     },
-
     login: async (root, { username, password }) => {
       const user = await User.findOne({ username });
       if (!user || password !== '123') {
@@ -109,6 +114,13 @@ const resolvers = {
         username: user.username,
         id: user._id,
       };
+    },
+  },
+
+  // ws subcription
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(['BOOK_ADDED']),
     },
   },
 
