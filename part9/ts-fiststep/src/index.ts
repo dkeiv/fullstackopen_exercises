@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { calculateBMI } from './utils/bmiCalculator';
+import { calculateExercises } from './utils/exercisesCalculator';
 
 const app = express();
 app.use(express.json());
@@ -22,6 +23,19 @@ app.get('/bmi', (req: Request, res: Response) => {
     height,
     bmi: calculateBMI(weight, height),
   });
+  return;
+});
+
+app.get('/exercises', (req: Request, res: Response) => {
+  const { dailyExerciseHours, target } = req.body;
+  if (!dailyExerciseHours || target == null) {
+    res.status(400).json({ error: 'parameters missing' });
+    return;
+  }
+
+  const result = calculateExercises(dailyExerciseHours, target);
+
+  res.json(result);
   return;
 });
 
