@@ -27,12 +27,14 @@ app.get('/bmi', (req: Request, res: Response) => {
 });
 
 app.get('/exercises', (req: Request, res: Response) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { dailyExerciseHours, target } = req.body;
   if (!dailyExerciseHours || target == null) {
     res.status(400).json({ error: 'parameters missing' });
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const result = calculateExercises(dailyExerciseHours, target);
 
   res.json(result);
