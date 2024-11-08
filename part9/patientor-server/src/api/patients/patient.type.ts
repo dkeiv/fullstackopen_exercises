@@ -12,3 +12,5 @@ export interface IPatient {
   ssn?: string;
   dateOfBirth?: string;
 }
+
+export type IPatientNoSsn = Omit<IPatient, 'ssn'>;
