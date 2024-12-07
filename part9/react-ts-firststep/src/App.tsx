@@ -39,15 +39,23 @@ const App = () => {
       description: 'a hard part',
       kind: 'basic',
     },
+    {
+      name: 'Backend development',
+      exerciseCount: 21,
+      description: 'Typing the backend',
+      requirements: ['nodejs', 'jest'],
+      kind: 'special',
+    },
   ];
+  const totalExercises = courseParts.reduce(
+    (acc, cur) => acc + cur.exerciseCount,
+    0
+  );
 
   return (
     <div>
       <Header courseName={courseName} />
       <Content courseParts={courseParts} />
-      <p>
-        {courseParts[0].name} {courseParts[0].exerciseCount}
-      </p>
       <Total totalExercises={totalExercises} />
     </div>
   );
