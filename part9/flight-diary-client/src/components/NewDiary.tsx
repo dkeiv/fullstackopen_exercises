@@ -4,20 +4,12 @@ import { useAddNewDiaryMutation } from '../redux/services/diaryApi';
 import { NewDiaryEntry, Visibility, Weather } from '../types/types';
 
 const NewDiary = () => {
-  const [addNewDiary, { data, error, isLoading }] = useAddNewDiaryMutation();
+  const [addNewDiary, { error, isLoading }] = useAddNewDiaryMutation();
 
-  const date = useField('text');
-  const visibility = useField('text');
-  const weather = useField('text');
+  const date = useField('date');
+  const visibility = useField('radio');
+  const weather = useField('radio');
   const comment = useField('text');
-
-  if (isLoading) {
-    return <p>adding new diary...</p>;
-  }
-
-  if (error) {
-    console.log(error);
-  }
 
   const handleOnSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
@@ -29,6 +21,7 @@ const NewDiary = () => {
         comment: comment.value,
       };
 
+      console.log(event);
       await addNewDiary(newDiary);
     } catch (err) {
       console.error(err);
@@ -38,24 +31,43 @@ const NewDiary = () => {
   return (
     <>
       <h1>Add new diary</h1>
+
+      {error && 'status' in error ? (
+        <p style={{ color: 'red' }}>{JSON.stringify(error.data)}</p>
+      ) : (
+        <p>{error?.message}</p>
+      )}
+
       <form onSubmit={handleOnSubmit}>
         <div>
           <label htmlFor='date'>date</label>
           <input id='date' {...date} />
         </div>
         <div>
-          <label htmlFor='visibility'>visibility</label>
-          <input id='visibility' {...visibility} />
+          <span>visibility: </span>
+          {Object.values(Visibility).map((val, id) => (
+            <span key={id}>
+              <input id={val} {...visibility} name='visibility' value={val} />
+              <label htmlFor={val}>{val}</label>
+            </span>
+          ))}
         </div>
         <div>
-          <label htmlFor='weather'>weather</label>
-          <input id='weather' {...weather} />
+          <span>weather: </span>
+          {Object.values(Weather).map((val, id) => (
+            <span key={id}>
+              <input id={val} {...weather} name='weather' value={val} />
+              <label htmlFor={val}>{val}</label>
+            </span>
+          ))}
         </div>
         <div>
           <label htmlFor='comment'>comment</label>
           <input id='comment' {...comment} />
         </div>
-        <button type='submit'>add</button>
+        <button type='submit' disabled={isLoading}>
+          add
+        </button>
       </form>
     </>
   );
